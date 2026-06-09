@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "Operation Theater Efficiency & Utilization Analytics"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "2e19dedf-58d8-4068-88dc-d1d35f9e3a37"
+  }
+}

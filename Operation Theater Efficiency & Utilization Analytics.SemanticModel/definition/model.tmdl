@@ -1,0 +1,36 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["ReportRefresh","Student Info","__Measures","CancellationLog","DimEquipment","DimOTRoom","DimPatient","DimProcedure","DimStaff","DimSurgeon","EquipmentUtilization","SurgicalCasesFact","DimDate"]
+
+annotation PBI_ProTooling = ["DaxQueryView_Desktop","DevMode"]
+
+ref table ReportRefresh
+ref table 'Student Info'
+ref table __Measures
+ref table CancellationLog
+ref table DateTableTemplate_14a81abe-cd7f-4bd5-ae31-d8edb47fe6d3
+ref table LocalDateTable_9e670824-9d1b-462b-9d67-9a76803c0029
+ref table DimEquipment
+ref table LocalDateTable_cde8546c-ea14-4dd3-b6e7-c15750b04c2b
+ref table DimOTRoom
+ref table DimPatient
+ref table DimProcedure
+ref table DimStaff
+ref table DimSurgeon
+ref table LocalDateTable_41323ef0-47fe-4ab5-beaa-cd73c5806b1e
+ref table EquipmentUtilization
+ref table LocalDateTable_c7f2f01e-e153-4e7c-b583-220952cd3e31
+ref table SurgicalCasesFact
+ref table LocalDateTable_cfde9fcf-ffb3-4ef0-af1f-ba5b448fcefc
+ref table DimDate
+
+ref cultureInfo en-US
+

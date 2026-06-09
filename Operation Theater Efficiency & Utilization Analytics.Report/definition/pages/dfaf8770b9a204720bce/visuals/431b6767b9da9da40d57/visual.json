@@ -1,0 +1,94 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.8.0/schema.json",
+  "name": "431b6767b9da9da40d57",
+  "position": {
+    "x": 644.05518235181933,
+    "y": 339.80420860793834,
+    "z": 2000,
+    "height": 380.183517345144,
+    "width": 635.37519337133654,
+    "tabOrder": 2000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimSurgeon"
+                    }
+                  },
+                  "Property": "SurgeonName"
+                }
+              },
+              "queryRef": "DimSurgeon.SurgeonName",
+              "nativeQueryRef": "SurgeonName"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "__Measures"
+                    }
+                  },
+                  "Property": "Cancellation Rate %"
+                }
+              },
+              "queryRef": "__Measures.Cancellation Rate %",
+              "nativeQueryRef": "Cancellation Rate %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "__Measures"
+                    }
+                  },
+                  "Property": "First Case Delay %"
+                }
+              },
+              "queryRef": "__Measures.First Case Delay %",
+              "nativeQueryRef": "First Case Delay %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "__Measures"
+                    }
+                  },
+                  "Property": "Avg Surgery Duration (mins)"
+                }
+              },
+              "queryRef": "__Measures.Avg Surgery Duration (mins)",
+              "nativeQueryRef": "Avg Surgery Duration (mins)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "__Measures"
+                    }
+                  },
+                  "Property": "Total Cases"
+                }
+              },
+              "queryRef": "__Measures.Total Cases",
+              "nativeQueryRef": "Total Cases"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

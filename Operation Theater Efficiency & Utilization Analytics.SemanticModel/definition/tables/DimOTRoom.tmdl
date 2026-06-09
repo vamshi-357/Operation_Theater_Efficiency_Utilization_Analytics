@@ -1,0 +1,82 @@
+table DimOTRoom
+	lineageTag: 2907320a-7894-4e10-b4f1-1cefa1d48f1f
+
+	column RoomID
+		dataType: string
+		lineageTag: 5cb5c797-f74f-4611-b229-f313f6968c2f
+		summarizeBy: none
+		sourceColumn: RoomID
+
+		annotation SummarizationSetBy = Automatic
+
+	column RoomName
+		dataType: string
+		lineageTag: a3897533-030f-4a0d-bc92-1208aa99bd00
+		summarizeBy: none
+		sourceColumn: RoomName
+
+		annotation SummarizationSetBy = Automatic
+
+	column RoomType
+		dataType: string
+		lineageTag: f847fca7-a881-419e-8c2e-9c4f2fce8ac4
+		summarizeBy: none
+		sourceColumn: RoomType
+
+		annotation SummarizationSetBy = Automatic
+
+	column PrimarySpecialty
+		dataType: string
+		lineageTag: ff659835-62e7-4136-8ad5-c88527d45575
+		summarizeBy: none
+		sourceColumn: PrimarySpecialty
+
+		annotation SummarizationSetBy = Automatic
+
+	column EquipmentTier
+		dataType: string
+		lineageTag: 84e969e9-c3b7-478f-8377-e133908774db
+		summarizeBy: none
+		sourceColumn: EquipmentTier
+
+		annotation SummarizationSetBy = Automatic
+
+	column Capacity
+		dataType: int64
+		formatString: 0
+		lineageTag: ed5f730e-1a33-4468-a2d9-a8919d62c31c
+		summarizeBy: sum
+		sourceColumn: Capacity
+
+		annotation SummarizationSetBy = Automatic
+
+	column AvailableHoursPerDay
+		dataType: int64
+		formatString: 0
+		lineageTag: a6425b0a-2e11-482f-b4d7-c1696a7fc32c
+		summarizeBy: sum
+		sourceColumn: AvailableHoursPerDay
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsActive
+		dataType: string
+		lineageTag: 39dc1dd7-b45f-47be-b0c2-02ed14246cbf
+		summarizeBy: none
+		sourceColumn: IsActive
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimOTRoom = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\KiranCherukupally\OneDrive - EPAM\My Data\KnowYourBI\Projects\MLRITM\Projects\IGNITE-2\22 - Operation Theater Efficiency & Utilization Analytics\files\OT_Dimension_Tables.xlsx"), null, true),
+				    DimOTRoom_Sheet = Source{[Item="DimOTRoom",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(DimOTRoom_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"RoomID", type text}, {"RoomName", type text}, {"RoomType", type text}, {"PrimarySpecialty", type text}, {"EquipmentTier", type text}, {"Capacity", Int64.Type}, {"AvailableHoursPerDay", Int64.Type}, {"IsActive", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Exception
+

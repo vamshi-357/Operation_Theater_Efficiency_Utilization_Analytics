@@ -1,0 +1,91 @@
+table CancellationLog
+	lineageTag: 417c3976-29fd-4876-816b-de6567291d62
+
+	column CancellationID
+		dataType: string
+		lineageTag: 313a92c5-1980-4530-a647-2a4bc7c7d3ac
+		summarizeBy: none
+		sourceColumn: CancellationID
+
+		annotation SummarizationSetBy = Automatic
+
+	column CaseID
+		dataType: string
+		lineageTag: f9cf5e49-98b1-4b8e-9f6c-9a8cebd95b21
+		summarizeBy: none
+		sourceColumn: CaseID
+
+		annotation SummarizationSetBy = Automatic
+
+	column CancellationDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 52cf3725-19e4-41e5-bdaa-08e2b6e35e52
+		summarizeBy: none
+		sourceColumn: CancellationDate
+
+		variation Variation
+			isDefault
+			relationship: ab3f5048-b543-46c5-8255-766db986bcd2
+			defaultHierarchy: LocalDateTable_9e670824-9d1b-462b-9d67-9a76803c0029.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column CancellationReason
+		dataType: string
+		lineageTag: cafe6a56-01e4-4873-8fd2-40ec77b5d40a
+		summarizeBy: none
+		sourceColumn: CancellationReason
+
+		annotation SummarizationSetBy = Automatic
+
+	column CancelledBy
+		dataType: string
+		lineageTag: c5f9a718-5c62-4175-8f97-a99971125e4d
+		summarizeBy: none
+		sourceColumn: CancelledBy
+
+		annotation SummarizationSetBy = Automatic
+
+	column NoticeHoursInAdvance
+		dataType: int64
+		formatString: 0
+		lineageTag: 99decfee-a9b0-476e-979d-bd5b12aeaec6
+		summarizeBy: sum
+		sourceColumn: NoticeHoursInAdvance
+
+		annotation SummarizationSetBy = Automatic
+
+	column RescheduledFlag
+		dataType: string
+		lineageTag: 3cb7a8bc-0aed-4e2f-9c0b-badbbb87719f
+		summarizeBy: none
+		sourceColumn: RescheduledFlag
+
+		annotation SummarizationSetBy = Automatic
+
+	column ImpactHours
+		dataType: double
+		lineageTag: 440392da-a09e-487c-848a-c0f411b09357
+		summarizeBy: sum
+		sourceColumn: ImpactHours
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition CancellationLog = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\KiranCherukupally\OneDrive - EPAM\My Data\KnowYourBI\Projects\MLRITM\Projects\IGNITE-2\22 - Operation Theater Efficiency & Utilization Analytics\files\OT_CancellationLog.xlsx"), null, true),
+				    CancellationLog_Sheet = Source{[Item="CancellationLog",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(CancellationLog_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"CancellationID", type text}, {"CaseID", type text}, {"CancellationDate", type date}, {"CancellationReason", type text}, {"CancelledBy", type text}, {"NoticeHoursInAdvance", Int64.Type}, {"RescheduledFlag", type text}, {"ImpactHours", type number}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

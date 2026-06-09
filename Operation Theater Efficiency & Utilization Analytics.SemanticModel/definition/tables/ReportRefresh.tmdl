@@ -1,0 +1,41 @@
+table ReportRefresh
+	isHidden
+	lineageTag: 1502dc1a-cb92-4a34-9ef7-aa29479d0569
+
+	column 'Last Refresh DateTime'
+		dataType: string
+		isHidden
+		lineageTag: e6aca1a9-1951-41c1-945e-25f2429f372d
+		summarizeBy: none
+		sourceColumn: Last Refresh DateTime
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Last Refresh Date Time New' = "Last refreshed time : " &left(ReportRefresh[Last Refresh DateTime], Find("+",ReportRefresh[Last Refresh DateTime])-1)
+		isHidden
+		lineageTag: 81c1f441-042b-44ee-8cd3-617ff47172d4
+		summarizeBy: none
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition ReportRefresh = m
+		mode: import
+		source =
+				let
+				    Source = #table(
+				        {"Last Refresh DateTime"},
+				        {{ DateTimeZone.LocalNow() }}
+				    )
+				in
+				    Source
+
+	changedProperty = IsHidden
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

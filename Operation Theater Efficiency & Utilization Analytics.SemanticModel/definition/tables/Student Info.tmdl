@@ -1,0 +1,98 @@
+table 'Student Info'
+	isHidden
+	lineageTag: 1e40f906-5f2a-4c2c-8912-6ec1bcc7dbb8
+
+	column 'Batch NO'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 51c26f98-067c-46a5-9165-b5f4a24648ef
+		summarizeBy: sum
+		sourceColumn: Batch NO
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'ROLL NO.'
+		dataType: string
+		isHidden
+		lineageTag: 4b61fc3d-1c2d-4a7b-9d73-b8eddb8b3e79
+		summarizeBy: none
+		sourceColumn: ROLL NO.
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'STUDENT NAME'
+		dataType: string
+		isHidden
+		lineageTag: 69ee6eae-f79d-4783-b03f-60bc2d7d4ab2
+		summarizeBy: none
+		sourceColumn: STUDENT NAME
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column BRANCH
+		dataType: string
+		isHidden
+		lineageTag: 2a35776b-0191-41b9-ba74-2f4ec87fa404
+		summarizeBy: none
+		sourceColumn: BRANCH
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column BATCH
+		dataType: string
+		isHidden
+		lineageTag: 2dc88a6b-467c-4469-9d44-74b1ae26b921
+		summarizeBy: none
+		sourceColumn: BATCH
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'PROJECT TITLE'
+		dataType: string
+		isHidden
+		lineageTag: 13c2577b-f2b9-4fa3-8894-9b30f5b12af5
+		summarizeBy: none
+		sourceColumn: PROJECT TITLE
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Image URL'
+		dataType: string
+		isHidden
+		lineageTag: ca6b2e3c-508b-448e-9f2a-360e6277d677
+		dataCategory: ImageUrl
+		summarizeBy: none
+		sourceColumn: Image URL
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Student Info' = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("xc9db4IwFAbgv9Jw7UfBIbrELFWM1CFOkGnjvChQpY4PAwWCv3413m3ZtTcneU/Om5PncFA0Teko2sAgKhoa1lgGBy2wbSOwnS+Rt8MOlruZZ8qJzxkX7F5YX1lBBc8zsI0ZFawA89OJh5xlYQu+Kgi1IfAFT/jtcYUymrSCh6XsxkJcy9d+Pyp4zXrnPD8nrBfmaV/EVRpklCdvPJqoflOSj7nZBKOA+qhdVYXlss2eOEtSr/GUPb6Ut0mjQgiBcuz8wuB78JCHpOUTrTzrSZCkoA0OotRd6rppdEdsgbKouql80JJkeOn+D3kxiC4hKpRh2nPRCoF3F3uWg54j2Z90e50Ocscn30GNY1iXIb3as8um2GUm2/2RHH8A", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [#"Batch NO" = _t, #"ROLL NO." = _t, #"STUDENT NAME" = _t, BRANCH = _t, BATCH = _t, #"PROJECT TITLE" = _t, #"Image URL" = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Batch NO", Int64.Type}, {"ROLL NO.", type text}, {"STUDENT NAME", type text}, {"BRANCH", type text}, {"BATCH", type text}, {"PROJECT TITLE", type text}})
+				in
+				    #"Changed Type"
+
+	changedProperty = IsHidden
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

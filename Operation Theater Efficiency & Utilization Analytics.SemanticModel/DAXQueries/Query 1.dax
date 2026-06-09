@@ -1,0 +1,9 @@
+Attendance Compliance % = 
+DIVIDE(
+    CALCULATE(
+        DISTINCTCOUNT(FactAttendance[StudentID]),
+        FILTER(VALUES(FactAttendance[StudentID]), [Attendance %] >= 75)
+    ),
+    DISTINCTCOUNT(FactAttendance[StudentID]),
+    0
+) 

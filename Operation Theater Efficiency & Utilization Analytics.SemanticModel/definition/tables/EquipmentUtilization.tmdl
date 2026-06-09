@@ -1,0 +1,106 @@
+table EquipmentUtilization
+	lineageTag: 5124bf17-e081-4fee-8487-6a76eb3270bb
+
+	column LogID
+		dataType: string
+		lineageTag: b2a232c5-e2f9-45bd-a8aa-9b2f48695c4a
+		summarizeBy: none
+		sourceColumn: LogID
+
+		annotation SummarizationSetBy = Automatic
+
+	column EquipmentID
+		dataType: string
+		lineageTag: c9f59b99-b533-47d4-941b-ebcf2b80bac7
+		summarizeBy: none
+		sourceColumn: EquipmentID
+
+		annotation SummarizationSetBy = Automatic
+
+	column UsageDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 8aa3ea5e-a6c6-4c1e-a6d3-daa639493c40
+		summarizeBy: none
+		sourceColumn: UsageDate
+
+		variation Variation
+			isDefault
+			relationship: 6fea61dd-85c9-4d2f-b9a9-d1b12c456419
+			defaultHierarchy: LocalDateTable_c7f2f01e-e153-4e7c-b583-220952cd3e31.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column OTRoomID
+		dataType: string
+		lineageTag: d13942bc-696f-4105-b0da-a52048b09900
+		summarizeBy: none
+		sourceColumn: OTRoomID
+
+		annotation SummarizationSetBy = Automatic
+
+	column CaseID
+		dataType: string
+		lineageTag: 183394d0-0ea5-4bf1-b31d-9acc177ca4f5
+		summarizeBy: none
+		sourceColumn: CaseID
+
+		annotation SummarizationSetBy = Automatic
+
+	column UsageDurationMins
+		dataType: int64
+		formatString: 0
+		lineageTag: 3bc7d7c6-8310-43e7-8028-2bc3d77da27d
+		summarizeBy: sum
+		sourceColumn: UsageDurationMins
+
+		annotation SummarizationSetBy = Automatic
+
+	column IdleTimeMins
+		dataType: int64
+		formatString: 0
+		lineageTag: 48e62931-c3b7-44ec-a43e-8a1a922afac2
+		summarizeBy: sum
+		sourceColumn: IdleTimeMins
+
+		annotation SummarizationSetBy = Automatic
+
+	column MaintenanceFlag
+		dataType: string
+		lineageTag: c45f5434-aba4-4ec7-979c-8f8309027b53
+		summarizeBy: none
+		sourceColumn: MaintenanceFlag
+
+		annotation SummarizationSetBy = Automatic
+
+	column MaintenanceType
+		dataType: string
+		lineageTag: 6137c1b4-0a61-43d9-8bcc-70cebd1d7dcd
+		summarizeBy: none
+		sourceColumn: MaintenanceType
+
+		annotation SummarizationSetBy = Automatic
+
+	column TechnicianID
+		dataType: string
+		lineageTag: 82636d99-c5ec-49e3-91a3-1be3b2831141
+		summarizeBy: none
+		sourceColumn: TechnicianID
+
+		annotation SummarizationSetBy = Automatic
+
+	partition EquipmentUtilization = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\KiranCherukupally\OneDrive - EPAM\My Data\KnowYourBI\Projects\MLRITM\Projects\IGNITE-2\22 - Operation Theater Efficiency & Utilization Analytics\files\OT_EquipmentUtilization.xlsx"), null, true),
+				    EquipmentUtilization_Sheet = Source{[Item="EquipmentUtilization",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(EquipmentUtilization_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"LogID", type text}, {"EquipmentID", type text}, {"UsageDate", type date}, {"OTRoomID", type text}, {"CaseID", type text}, {"UsageDurationMins", Int64.Type}, {"IdleTimeMins", Int64.Type}, {"MaintenanceFlag", type text}, {"MaintenanceType", type text}, {"TechnicianID", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

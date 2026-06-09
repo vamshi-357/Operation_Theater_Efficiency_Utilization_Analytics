@@ -1,0 +1,236 @@
+table __Measures
+	lineageTag: e0595c7f-1399-49b6-a4ab-0248ecebdb15
+
+	measure 'Total Cases' = COUNTROWS(SurgicalCasesFact)
+		formatString: 0
+		lineageTag: fee2c8a8-5eda-4537-80b4-4c288afdb603
+
+	measure 'Completed Cases' =
+			
+			CALCULATE(
+			    COUNTROWS(SurgicalCasesFact),
+			    SurgicalCasesFact[CaseStatus] = "Completed"
+			)
+		formatString: 0
+		lineageTag: eb39618b-16fa-4094-a072-769d13acaa16
+
+	measure 'Emergency Cases' =
+			
+			CALCULATE(
+			    COUNTROWS(SurgicalCasesFact),
+			    SurgicalCasesFact[EmergencyFlag] = "Yes"
+			)
+		formatString: 0
+		lineageTag: 5bb811e9-7ea2-46a6-b9b8-7eed6f4d31ec
+
+	measure 'Elective Cases' =
+			
+			CALCULATE(
+			    COUNTROWS(SurgicalCasesFact),
+			    SurgicalCasesFact[EmergencyFlag] = "No"
+			)
+		formatString: 0
+		lineageTag: ef7ecb63-b65e-4d04-84cf-815fe9a5c554
+
+	measure 'OT Utilization %' =
+			
+			VAR ActualMins =
+			    CALCULATE(
+			        SUMX(SurgicalCasesFact, SurgicalCasesFact[ActualDurationMins]),
+			        SurgicalCasesFact[CaseStatus] = "Completed"
+			    )
+			
+			VAR ActiveRooms =
+			    -- from DimOTRoom, not fact table — captures idle rooms too
+			    CALCULATE( DISTINCTCOUNT(DimOTRoom[RoomID]) )
+			
+			VAR OperatingDays =
+			    -- from DimDate — counts calendar days in the filter context
+			    CALCULATE(
+			        DISTINCTCOUNT(DimDate[DateKey]),
+			        NOT(DimDate[IsWeekend])   -- weekdays only; remove if OT runs on weekends
+			    )
+			
+			VAR AvailableMins = ActiveRooms * 600 * OperatingDays
+			    -- 600 = 10 OT hours × 60 min; adjust to your hospital's schedule
+			
+			RETURN
+			    IF(
+			        AvailableMins > 0,
+			        DIVIDE(ActualMins, AvailableMins) * 100,
+			        BLANK()    -- returns BLANK instead of 0 so empty months don't plot
+			    )
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 0a0115b0-f46f-4e1c-a994-3c3129ecf2f4
+
+	measure 'Utilized OT Hours' =
+			
+			DIVIDE(
+			    CALCULATE(SUM(SurgicalCasesFact[ActualDurationMins]),
+			        SurgicalCasesFact[CaseStatus]="Completed"),
+			    60
+			)
+		lineageTag: d1029ee7-ddf2-489d-8075-a1e5b02a873f
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Available OT Hours' =
+			
+			DIVIDE(DISTINCTCOUNT(SurgicalCasesFact[OTRoomID]) * 600, 60)
+		lineageTag: e9a99f30-0ba0-46f4-a021-11d4433e4939
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Avg Surgery Duration (mins)' =
+			
+			CALCULATE(
+			    AVERAGE(SurgicalCasesFact[ActualDurationMins]),
+			    SurgicalCasesFact[CaseStatus] = "Completed"
+			)
+		lineageTag: 450588d6-bfa6-49f9-b769-002af178466c
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Avg Turnover Time (mins)' = ```
+			
+			CALCULATE(
+			    AVERAGE(SurgicalCasesFact[TurnoverTimeMins]),
+			    SurgicalCasesFact[TurnoverTimeMins] > 0,
+			    SurgicalCasesFact[CaseStatus] = "Completed"
+			)
+			
+			```
+		lineageTag: 51afa866-44ca-4b2d-b1d5-8483484a8923
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'First Case Delay %' =
+			
+			DIVIDE(
+			    CALCULATE(
+			        COUNTROWS(SurgicalCasesFact),
+			        SurgicalCasesFact[FirstCaseFlag] = "Yes",
+			        SurgicalCasesFact[StartDelayMins] > 0
+			    ),
+			    CALCULATE(
+			        COUNTROWS(SurgicalCasesFact),
+			        SurgicalCasesFact[FirstCaseFlag] = "Yes"
+			    ),
+			    0
+			)
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 2fdc517f-a304-432d-bcc6-a60a51eb950c
+
+	measure 'Avg Start Delay (mins)' =
+			
+			CALCULATE(
+			    AVERAGE(SurgicalCasesFact[StartDelayMins]),
+			    SurgicalCasesFact[StartDelayMins] > 0
+			)
+		lineageTag: 8498edc5-2456-4efe-8c9d-85f005f49881
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Cancellation Rate %' =
+			
+			DIVIDE(
+			    CALCULATE(
+			        COUNTROWS(SurgicalCasesFact),
+			        SurgicalCasesFact[CaseStatus] = "Cancelled"
+			    ),
+			    COUNTROWS(SurgicalCasesFact),
+			    0
+			)
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: e2bf4aa3-d031-4529-b047-d499e4b6fb65
+
+	measure 'Lost OT Hours' =
+			
+			CALCULATE(
+			    SUMX(CancellationLog, CancellationLog[ImpactHours])
+			)
+		lineageTag: 3eb9c8e0-d4ab-4db5-9489-1f1420717d5e
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Rescheduled %' = ```
+			
+			DIVIDE(
+			    CALCULATE(COUNTROWS(CancellationLog), CancellationLog[RescheduledFlag]="Yes"),
+			    COUNTROWS(CancellationLog),
+			    0
+			) 
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: f5ac29ab-ff8c-4a0c-b99d-84bae88b6ab9
+
+	measure 'Cases MTD' =
+			
+			TOTALMTD([Total Cases], DimDate[Date])
+		lineageTag: 88d36e09-8d40-4719-a7f1-520d78550e8a
+
+	measure 'Cases YTD' = ```
+			
+			TOTALYTD([Total Cases], DimDate[Date])
+			// Year-to-date running total of all surgical cases
+			
+			```
+		formatString: 0
+		lineageTag: 32c8817f-4d86-499c-8e80-439d6f0501c7
+
+	measure 'MoM Change %' = ```
+			
+			VAR Curr = [Total Cases]
+			VAR Previous =
+			    CALCULATE([Total Cases], DATEADD(DimDate[Date], -1, MONTH))
+			RETURN DIVIDE(Curr - Previous, Previous, 0) 
+			```
+		formatString: 0%;-0%;0%
+		lineageTag: d44d2273-9a0a-4452-9d13-79ce88650de5
+
+	measure 'Rolling 3M Avg Utilization' =
+			
+			AVERAGEX(
+			    DATESINPERIOD(DimDate[Date], LASTDATE(DimDate[Date]), -3, MONTH),
+			    [OT Utilization %]
+			)
+		formatString: 0
+		lineageTag: efafc802-c2c9-438f-b1c0-7a2c438bd4b4
+
+	measure 'Best Month Utilization' =
+			
+			MAXX(
+			    SUMMARIZE(SurgicalCasesFact, DimDate[MonthName],
+			        "U", [OT Utilization %]),
+			    [U]
+			)
+		lineageTag: 47ce4974-6b41-4238-99c8-87e53f1769b7
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Equipment Utilization Rate %' =
+			
+			DIVIDE(
+			    SUM(EquipmentUtilization[UsageDurationMins]),
+			    SUM(EquipmentUtilization[UsageDurationMins]) + SUM(EquipmentUtilization[IdleTimeMins]),
+			    0
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: a6e4b749-16ca-4f66-b925-fb9729b3a1a0
+
+	partition __Measures = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Column1 = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Changed Type",{"Column1"})
+				in
+				    #"Removed Columns"
+
+	changedProperty = IsHidden
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

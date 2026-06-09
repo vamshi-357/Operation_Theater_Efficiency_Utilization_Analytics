@@ -1,0 +1,89 @@
+table DimSurgeon
+	lineageTag: 3ed43043-bbb1-4c94-9d46-5f83f8354414
+
+	column SurgeonID
+		dataType: string
+		lineageTag: 85f8f677-f483-4179-ac4f-b4b836336dcc
+		summarizeBy: none
+		sourceColumn: SurgeonID
+
+		annotation SummarizationSetBy = Automatic
+
+	column SurgeonName
+		dataType: string
+		lineageTag: 10c7694d-09b9-446f-b7d2-8e930a89500f
+		summarizeBy: none
+		sourceColumn: SurgeonName
+
+		annotation SummarizationSetBy = Automatic
+
+	column Specialty
+		dataType: string
+		lineageTag: 00fc3dd7-b048-4a13-b603-d743a7a19044
+		summarizeBy: none
+		sourceColumn: Specialty
+
+		annotation SummarizationSetBy = Automatic
+
+	column Designation
+		dataType: string
+		lineageTag: b14e5ead-0899-42ee-be53-b0866bc069a0
+		summarizeBy: none
+		sourceColumn: Designation
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearsExperience
+		dataType: int64
+		formatString: 0
+		lineageTag: 4f096121-0ba5-4dd1-a1aa-2e92f604dccf
+		summarizeBy: sum
+		sourceColumn: YearsExperience
+
+		annotation SummarizationSetBy = Automatic
+
+	column SurgeonEmail
+		dataType: string
+		lineageTag: 4925d99a-c912-4944-8d82-f4e895110ce0
+		summarizeBy: none
+		sourceColumn: SurgeonEmail
+
+		annotation SummarizationSetBy = Automatic
+
+	column SurgeonPhone
+		dataType: string
+		lineageTag: 13003d64-9674-4239-bd5e-df5953f6ebd2
+		summarizeBy: none
+		sourceColumn: SurgeonPhone
+
+		annotation SummarizationSetBy = Automatic
+
+	column JoinDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: a3d4c84c-2aad-45c3-9db1-df49438c4488
+		summarizeBy: none
+		sourceColumn: JoinDate
+
+		variation Variation
+			isDefault
+			relationship: 8c0252d9-1fea-47f2-9656-e9625f09119c
+			defaultHierarchy: LocalDateTable_41323ef0-47fe-4ab5-beaa-cd73c5806b1e.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition DimSurgeon = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\KiranCherukupally\OneDrive - EPAM\My Data\KnowYourBI\Projects\MLRITM\Projects\IGNITE-2\22 - Operation Theater Efficiency & Utilization Analytics\files\OT_Dimension_Tables.xlsx"), null, true),
+				    DimSurgeon_Sheet = Source{[Item="DimSurgeon",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(DimSurgeon_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"SurgeonID", type text}, {"SurgeonName", type text}, {"Specialty", type text}, {"Designation", type text}, {"YearsExperience", Int64.Type}, {"SurgeonEmail", type text}, {"SurgeonPhone", type text}, {"JoinDate", type date}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Exception
+

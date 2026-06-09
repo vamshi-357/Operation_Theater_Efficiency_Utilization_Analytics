@@ -1,0 +1,73 @@
+table DimStaff
+	lineageTag: d11338f7-8234-4b9a-aa24-477f4e29d7fc
+
+	column StaffID
+		dataType: string
+		lineageTag: 98a92ce4-b92a-453e-9e57-f1484a4a030e
+		summarizeBy: none
+		sourceColumn: StaffID
+
+		annotation SummarizationSetBy = Automatic
+
+	column StaffName
+		dataType: string
+		lineageTag: ac5eafe0-0815-40c2-b7ce-f337258a6d96
+		summarizeBy: none
+		sourceColumn: StaffName
+
+		annotation SummarizationSetBy = Automatic
+
+	column Role
+		dataType: string
+		lineageTag: e7fb5a39-2131-4fa9-8b0c-758552bb4076
+		summarizeBy: none
+		sourceColumn: Role
+
+		annotation SummarizationSetBy = Automatic
+
+	column Department
+		dataType: string
+		lineageTag: 1370217c-9f6b-4102-a6c8-b4a9e350404c
+		summarizeBy: none
+		sourceColumn: Department
+
+		annotation SummarizationSetBy = Automatic
+
+	column Shift
+		dataType: string
+		lineageTag: 2629eb32-defe-4851-b0c0-6577c377fb03
+		summarizeBy: none
+		sourceColumn: Shift
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearsExperience
+		dataType: int64
+		formatString: 0
+		lineageTag: f6053a40-0f41-4ef3-9154-d31c82c3ac04
+		summarizeBy: sum
+		sourceColumn: YearsExperience
+
+		annotation SummarizationSetBy = Automatic
+
+	column CertificationLevel
+		dataType: string
+		lineageTag: 781dbf5d-eee5-40d5-8e54-c355df161dc5
+		summarizeBy: none
+		sourceColumn: CertificationLevel
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimStaff = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\KiranCherukupally\OneDrive - EPAM\My Data\KnowYourBI\Projects\MLRITM\Projects\IGNITE-2\22 - Operation Theater Efficiency & Utilization Analytics\files\OT_Dimension_Tables.xlsx"), null, true),
+				    DimStaff_Sheet = Source{[Item="DimStaff",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(DimStaff_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"StaffID", type text}, {"StaffName", type text}, {"Role", type text}, {"Department", type text}, {"Shift", type text}, {"YearsExperience", Int64.Type}, {"CertificationLevel", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

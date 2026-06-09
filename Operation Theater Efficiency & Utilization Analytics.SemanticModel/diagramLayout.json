@@ -1,0 +1,191 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 1761.3836776687742,
+            "y": 144.72634145092573
+          },
+          "nodeIndex": "ReportRefresh",
+          "nodeLineageTag": "1502dc1a-cb92-4a34-9ef7-aa29479d0569",
+          "size": {
+            "height": 145,
+            "width": 234
+          },
+          "zIndex": 10
+        },
+        {
+          "location": {
+            "x": 1762.5689251854583,
+            "y": 306.84000848648463
+          },
+          "nodeIndex": "Student Info",
+          "nodeLineageTag": "1e40f906-5f2a-4c2c-8912-6ec1bcc7dbb8",
+          "size": {
+            "height": 275,
+            "width": 234
+          },
+          "zIndex": 8
+        },
+        {
+          "location": {
+            "x": 1769.7951186830819,
+            "y": 696.26765495364157
+          },
+          "nodeIndex": "__Measures",
+          "nodeLineageTag": "e0595c7f-1399-49b6-a4ab-0248ecebdb15",
+          "size": {
+            "height": 185.78555076881241,
+            "width": 234
+          },
+          "zIndex": 9
+        },
+        {
+          "location": {
+            "x": 1342.6958620775049,
+            "y": 681.52483895457749
+          },
+          "nodeIndex": "CancellationLog",
+          "nodeLineageTag": "417c3976-29fd-4876-816b-de6567291d62",
+          "size": {
+            "height": 272,
+            "width": 234
+          },
+          "zIndex": 1
+        },
+        {
+          "location": {
+            "x": 4.1949664188674092,
+            "y": 213.20118399425851
+          },
+          "nodeIndex": "DimEquipment",
+          "nodeLineageTag": "cabfad3a-bfd1-4558-a295-78f5184990cf",
+          "size": {
+            "height": 277.36476493207192,
+            "width": 234
+          },
+          "zIndex": 2
+        },
+        {
+          "location": {
+            "x": 277.70755037169891,
+            "y": 215.88356646029447
+          },
+          "nodeIndex": "DimOTRoom",
+          "nodeLineageTag": "2907320a-7894-4e10-b4f1-1cefa1d48f1f",
+          "size": {
+            "height": 307.65721456037306,
+            "width": 234
+          },
+          "zIndex": 3
+        },
+        {
+          "location": {
+            "x": 568,
+            "y": 215.29866720369228
+          },
+          "nodeIndex": "DimPatient",
+          "nodeLineageTag": "13dda744-5563-46e9-8fea-b6cdee02f0fb",
+          "size": {
+            "height": 289.94966418867409,
+            "width": 234
+          },
+          "zIndex": 4
+        },
+        {
+          "location": {
+            "x": 852,
+            "y": 215.29866720369222
+          },
+          "nodeIndex": "DimProcedure",
+          "nodeLineageTag": "11c5d134-9ff9-4032-b917-86609bb7c087",
+          "size": {
+            "height": 289.94966418867415,
+            "width": 234
+          },
+          "zIndex": 11
+        },
+        {
+          "location": {
+            "x": 1136,
+            "y": 221.10370078482481
+          },
+          "nodeIndex": "DimStaff",
+          "nodeLineageTag": "d11338f7-8234-4b9a-aa24-477f4e29d7fc",
+          "size": {
+            "height": 294.14463060754156,
+            "width": 234
+          },
+          "zIndex": 12
+        },
+        {
+          "location": {
+            "x": 1420,
+            "y": 207.49363362255963
+          },
+          "nodeIndex": "DimSurgeon",
+          "nodeLineageTag": "3ed43043-bbb1-4c94-9d46-5f83f8354414",
+          "size": {
+            "height": 309.75469776980674,
+            "width": 234
+          },
+          "zIndex": 5
+        },
+        {
+          "location": {
+            "x": 475.78853077736642,
+            "y": 617.18524192816847
+          },
+          "nodeIndex": "EquipmentUtilization",
+          "nodeLineageTag": "5124bf17-e081-4fee-8487-6a76eb3270bb",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 6
+        },
+        {
+          "location": {
+            "x": 971.63459097060172,
+            "y": 638.16007402250557
+          },
+          "nodeIndex": "SurgicalCasesFact",
+          "nodeLineageTag": "0b2ce156-1c7b-4dbd-8a3f-2dddf5a16f20",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 7
+        },
+        {
+          "location": {
+            "x": 2049.6001522642146,
+            "y": 302.64136256880113
+          },
+          "nodeIndex": "DimDate",
+          "nodeLineageTag": "58a4c420-761e-482e-9820-a86fed71c47a",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 47.676186178862764,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

@@ -1,0 +1,192 @@
+table SurgicalCasesFact
+	lineageTag: 0b2ce156-1c7b-4dbd-8a3f-2dddf5a16f20
+
+	column CaseID
+		dataType: string
+		lineageTag: f7b183d3-5a65-466f-873d-99b71cad987e
+		summarizeBy: none
+		sourceColumn: CaseID
+
+		annotation SummarizationSetBy = Automatic
+
+	column DateKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 823d511a-52fe-49e8-b38f-6af0b0374f58
+		summarizeBy: none
+		sourceColumn: DateKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column CaseDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 78f3c6f1-25ce-4222-8fc0-3cab24cbbd67
+		summarizeBy: none
+		sourceColumn: CaseDate
+
+		variation Variation
+			isDefault
+			relationship: e077721a-86e8-4d84-8856-1980c8de0c18
+			defaultHierarchy: LocalDateTable_cfde9fcf-ffb3-4ef0-af1f-ba5b448fcefc.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column SurgeonID
+		dataType: string
+		lineageTag: 0caa23c4-5c84-4cb6-8d54-7175a75e29e6
+		summarizeBy: none
+		sourceColumn: SurgeonID
+
+		annotation SummarizationSetBy = Automatic
+
+	column OTRoomID
+		dataType: string
+		lineageTag: 08c1f204-a3ba-46f9-be97-ada36295dac2
+		summarizeBy: none
+		sourceColumn: OTRoomID
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProcedureID
+		dataType: string
+		lineageTag: c0320ed5-ed13-4ad0-9d4c-b7c2b360a540
+		summarizeBy: none
+		sourceColumn: ProcedureID
+
+		annotation SummarizationSetBy = Automatic
+
+	column PatientID
+		dataType: string
+		lineageTag: aa0363a6-5ae0-43a0-9b4a-d324fe8b5a61
+		summarizeBy: none
+		sourceColumn: PatientID
+
+		annotation SummarizationSetBy = Automatic
+
+	column ScheduledStartTime
+		dataType: dateTime
+		formatString: Long Time
+		lineageTag: dcec7c82-fdaf-4a07-a889-047e6f8f6cd7
+		summarizeBy: none
+		sourceColumn: ScheduledStartTime
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Time
+
+	column ActualStartTime
+		dataType: dateTime
+		formatString: Long Time
+		lineageTag: cd3332ac-e85b-42ce-8ec3-bbcd8966d8a0
+		summarizeBy: none
+		sourceColumn: ActualStartTime
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Time
+
+	column ScheduledEndTime
+		dataType: dateTime
+		formatString: Long Time
+		lineageTag: f44baa4c-caa8-4a72-80cb-397b080d6caf
+		summarizeBy: none
+		sourceColumn: ScheduledEndTime
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Time
+
+	column ActualEndTime
+		dataType: dateTime
+		formatString: Long Time
+		lineageTag: a80f33ab-fc8a-4db3-bc32-bdec2f04bbc3
+		summarizeBy: none
+		sourceColumn: ActualEndTime
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Time
+
+	column ActualDurationMins
+		dataType: int64
+		formatString: 0
+		lineageTag: d952c603-7465-4a59-92f1-c07607146dca
+		summarizeBy: sum
+		sourceColumn: ActualDurationMins
+
+		annotation SummarizationSetBy = Automatic
+
+	column StartDelayMins
+		dataType: int64
+		formatString: 0
+		lineageTag: e9adf660-91df-43b2-a92c-e6fdabd884f4
+		summarizeBy: sum
+		sourceColumn: StartDelayMins
+
+		annotation SummarizationSetBy = Automatic
+
+	column CaseStatus
+		dataType: string
+		lineageTag: ffae06f0-e18f-428c-bc48-826a0cde7736
+		summarizeBy: none
+		sourceColumn: CaseStatus
+
+		annotation SummarizationSetBy = Automatic
+
+	column EmergencyFlag
+		dataType: string
+		lineageTag: c9e8ace9-a38a-458f-8fef-124b6bed9a2c
+		summarizeBy: none
+		sourceColumn: EmergencyFlag
+
+		annotation SummarizationSetBy = Automatic
+
+	column FirstCaseFlag
+		dataType: string
+		lineageTag: c86f0a9b-1012-4b70-834f-26b8f74373b5
+		summarizeBy: none
+		sourceColumn: FirstCaseFlag
+
+		annotation SummarizationSetBy = Automatic
+
+	column TurnoverTimeMins
+		dataType: int64
+		formatString: 0
+		lineageTag: 4ee69e2c-8d98-493c-b032-84c56171f93e
+		summarizeBy: sum
+		sourceColumn: TurnoverTimeMins
+
+		annotation SummarizationSetBy = Automatic
+
+	column AnesthesiaType
+		dataType: string
+		lineageTag: b16c337c-2a8c-45dc-973b-98d8a657bd2c
+		summarizeBy: none
+		sourceColumn: AnesthesiaType
+
+		annotation SummarizationSetBy = Automatic
+
+	column ASAScore
+		dataType: string
+		lineageTag: 0856e27b-e094-4d39-8f72-f91fb8e776ac
+		summarizeBy: none
+		sourceColumn: ASAScore
+
+		annotation SummarizationSetBy = Automatic
+
+	partition SurgicalCasesFact = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\KiranCherukupally\OneDrive - EPAM\My Data\KnowYourBI\Projects\MLRITM\Projects\IGNITE-2\22 - Operation Theater Efficiency & Utilization Analytics\files\OT_SurgicalCasesFact.xlsx"), null, true),
+				    SurgicalCasesFact_Sheet = Source{[Item="SurgicalCasesFact",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(SurgicalCasesFact_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"CaseID", type text}, {"DateKey", Int64.Type}, {"CaseDate", type date}, {"SurgeonID", type text}, {"OTRoomID", type text}, {"ProcedureID", type text}, {"PatientID", type text}, {"ScheduledStartTime", type time}, {"ActualStartTime", type time}, {"ScheduledEndTime", type time}, {"ActualEndTime", type time}, {"ActualDurationMins", Int64.Type}, {"StartDelayMins", Int64.Type}, {"CaseStatus", type text}, {"EmergencyFlag", type text}, {"FirstCaseFlag", type text}, {"TurnoverTimeMins", Int64.Type}, {"AnesthesiaType", type text}, {"ASAScore", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

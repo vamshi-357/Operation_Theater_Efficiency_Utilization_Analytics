@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OT Analytics — Star Schema Data Model</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1b2a;
+    --navy2: #12263a;
+    --blue: #1a6fbd;
+    --blue2: #2e8de0;
+    --accent: #00d4ff;
+    --gold: #f0b429;
+    --green: #3ecf8e;
+    --pink: #ff6b9d;
+    --orange: #ff8c42;
+    --purple: #9b6dff;
+    --teal: #0fd9b4;
+    --white: #f0f6ff;
+    --dim: #8ba5c2;
+    --grid: rgba(30,100,180,0.08);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--navy);
+    font-family: 'Syne', sans-serif;
+    color: var(--white);
+    width: 1400px;
+    min-height: 1000px;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glowing orbs */
+  body::after {
+    content: '';
+    position: fixed;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(26,111,189,0.12) 0%, transparent 70%);
+    top: -100px; left: -100px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .canvas {
+    position: relative;
+    z-index: 1;
+    padding: 40px 50px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    text-align: center;
+    margin-bottom: 44px;
+    position: relative;
+  }
+  .header-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    border: 1px solid rgba(0,212,255,0.3);
+    padding: 4px 16px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+  .header h1 {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #fff 0%, var(--accent) 60%, var(--blue2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+  .header p {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--dim);
+    letter-spacing: 1px;
+  }
+  .header-line {
+    width: 200px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    margin: 16px auto 0;
+  }
+
+  /* ── LEGEND ── */
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--dim);
+    letter-spacing: 0.5px;
+  }
+  .legend-dot {
+    width: 12px; height: 12px;
+    border-radius: 3px;
+  }
+
+  /* ── DIAGRAM LAYOUT ── */
+  .diagram {
+    position: relative;
+    width: 100%;
+  }
+
+  /* SVG connector layer */
+  .connectors {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Grid layout */
+  .schema-grid {
+    display: grid;
+    grid-template-columns: 260px 1fr 260px;
+    grid-template-rows: auto auto auto;
+    gap: 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .col-left { display: flex; flex-direction: column; gap: 24px; }
+  .col-center { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .col-right { display: flex; flex-direction: column; gap: 24px; }
+
+  /* ── TABLE CARDS ── */
+  .table-card {
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.07);
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.2s;
+    backdrop-filter: blur(4px);
+  }
+  .table-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    pointer-events: none;
+  }
+
+  /* Card Header */
+  .card-header {
+    padding: 10px 14px 9px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .card-icon {
+    font-size: 16px;
+    line-height: 1;
+  }
+  .card-title {
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.2px;
+  }
+  .card-type {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    opacity: 0.7;
+    text-transform: uppercase;
+    margin-left: auto;
+    border: 1px solid currentColor;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  /* Card Fields */
+  .card-fields {
+    padding: 0 0 8px;
+  }
+  .field-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    color: rgba(240,246,255,0.75);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  .field-row:last-child { border-bottom: none; }
+  .field-icon {
+    font-size: 10px;
+    opacity: 0.6;
+    min-width: 12px;
+  }
+  .field-name { flex: 1; }
+  .field-type {
+    font-size: 9px;
+    opacity: 0.45;
+    letter-spacing: 0.5px;
+  }
+  .pk { color: var(--gold); font-weight: 600; }
+  .fk { color: var(--accent); }
+  .field-pk { color: var(--gold) !important; opacity: 1 !important; }
+  .field-fk { color: var(--accent) !important; opacity: 1 !important; }
+
+  /* ── FACT TABLE (center) ── */
+  .fact-card {
+    width: 380px;
+    margin: 0 auto;
+  }
+
+  /* ── COLOR THEMES ── */
+  /* Fact */
+  .theme-fact .card-header { background: linear-gradient(135deg, #1a2040, #0f1829); border-bottom: 2px solid var(--blue2); }
+  .theme-fact { background: linear-gradient(180deg, #141c2e 0%, #0d1520 100%); }
+
+  /* Dim Date */
+  .theme-date .card-header { background: linear-gradient(135deg, #1a2a18, #0f1f0e); border-bottom: 2px solid var(--green); }
+  .theme-date { background: linear-gradient(180deg, #131e12 0%, #0d1610 100%); }
+  .theme-date .card-title { color: var(--green); }
+  .theme-date .card-type { color: var(--green); border-color: var(--green); }
+
+  /* Dim Surgeon */
+  .theme-surgeon .card-header { background: linear-gradient(135deg, #2a1a2a, #1f0f1f); border-bottom: 2px solid var(--purple); }
+  .theme-surgeon { background: linear-gradient(180deg, #1e1227 0%, #160d1e 100%); }
+  .theme-surgeon .card-title { color: var(--purple); }
+  .theme-surgeon .card-type { color: var(--purple); border-color: var(--purple); }
+
+  /* Dim Patient */
+  .theme-patient .card-header { background: linear-gradient(135deg, #2a1520, #1f0d18); border-bottom: 2px solid var(--pink); }
+  .theme-patient { background: linear-gradient(180deg, #1e1018 0%, #160c14 100%); }
+  .theme-patient .card-title { color: var(--pink); }
+  .theme-patient .card-type { color: var(--pink); border-color: var(--pink); }
+
+  /* Dim OT Room */
+  .theme-room .card-header { background: linear-gradient(135deg, #1a2a20, #0f1f18); border-bottom: 2px solid var(--teal); }
+  .theme-room { background: linear-gradient(180deg, #12201a 0%, #0d1814 100%); }
+  .theme-room .card-title { color: var(--teal); }
+  .theme-room .card-type { color: var(--teal); border-color: var(--teal); }
+
+  /* Dim Procedure */
+  .theme-proc .card-header { background: linear-gradient(135deg, #2a2010, #1f180a); border-bottom: 2px solid var(--gold); }
+  .theme-proc { background: linear-gradient(180deg, #201a10 0%, #181410 100%); }
+  .theme-proc .card-title { color: var(--gold); }
+  .theme-proc .card-type { color: var(--gold); border-color: var(--gold); }
+
+  /* Cancellation Log */
+  .theme-cancel .card-header { background: linear-gradient(135deg, #2a1510, #1f100a); border-bottom: 2px solid var(--orange); }
+  .theme-cancel { background: linear-gradient(180deg, #1e1510 0%, #160f0a 100%); }
+  .theme-cancel .card-title { color: var(--orange); }
+  .theme-cancel .card-type { color: var(--orange); border-color: var(--orange); }
+
+  /* Equipment */
+  .theme-equip .card-header { background: linear-gradient(135deg, #102a2a, #081f1f); border-bottom: 2px solid var(--accent); }
+  .theme-equip { background: linear-gradient(180deg, #0e1e1e 0%, #091616 100%); }
+  .theme-equip .card-title { color: var(--accent); }
+  .theme-equip .card-type { color: var(--accent); border-color: var(--accent); }
+
+  /* Staff */
+  .theme-staff .card-header { background: linear-gradient(135deg, #202020, #141414); border-bottom: 2px solid #aaaaaa; }
+  .theme-staff { background: linear-gradient(180deg, #181818 0%, #111111 100%); }
+  .theme-staff .card-title { color: #cccccc; }
+  .theme-staff .card-type { color: #aaaaaa; border-color: #aaaaaa; }
+
+  /* ── RELATIONSHIP LABELS ── */
+  .rel-labels {
+    margin-top: 36px;
+    padding: 20px 24px;
+    background: rgba(26,111,189,0.06);
+    border: 1px solid rgba(26,111,189,0.15);
+    border-radius: 12px;
+  }
+  .rel-labels h3 {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-family: 'IBM Plex Mono', monospace;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0,212,255,0.15);
+  }
+  .rel-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  .rel-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+  }
+  .rel-from { color: var(--accent); font-weight: 600; margin-bottom: 2px; }
+  .rel-arrow { color: var(--dim); font-size: 9px; margin-bottom: 2px; }
+  .rel-to { color: var(--gold); font-weight: 600; margin-bottom: 4px; }
+  .rel-meta { color: var(--dim); font-size: 9px; }
+  .rel-cardinality { color: var(--green); }
+
+  /* ── FOOTER STATS ── */
+  .stats-bar {
+    margin-top: 28px;
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .stat-item {
+    flex: 1;
+    padding: 16px 20px;
+    text-align: center;
+    border-right: 1px solid rgba(255,255,255,0.07);
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-val {
+    font-size: 26px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--blue2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .watermark {
+    text-align: center;
+    margin-top: 20px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: rgba(139,165,194,0.3);
+    letter-spacing: 2px;
+  }
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <!-- ── HEADER ── -->
+  <div class="header">
+    <div class="header-badge">Star Schema · Power BI Data Model</div>
+    <h1>Operation Theater Analytics</h1>
+    <p>Fact &amp; Dimension Tables  ·  8 Relationships  ·  9 Tables  ·  4,849 Surgical Cases</p>
+    <div class="header-line"></div>
+  </div>
+
+  <!-- ── LEGEND ── -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div> Primary Key (PK)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div> Foreign Key (FK)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--blue2)"></div> Fact Table</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div> Dimension Table</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div> Bridge/Fact Table</div>
+    <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.15)"></div> Derived/Lookup</div>
+  </div>
+
+  <!-- ── DIAGRAM ── -->
+  <div class="diagram">
+
+    <!-- SVG Connectors -->
+    <svg class="connectors" id="connectors"></svg>
+
+    <div class="schema-grid">
+
+      <!-- LEFT COLUMN -->
+      <div class="col-left">
+
+        <!-- DimSurgeon -->
+        <div class="table-card theme-surgeon" id="card-surgeon">
+          <div class="card-header">
+            <span class="card-icon">👨‍⚕️</span>
+            <span class="card-title">DimSurgeon</span>
+            <span class="card-type">Dimension</span>
+          </div>
+          <div class="card-fields">
+            <div class="field-row"><span class="field-icon pk">🔑</span><span class="field-name field-pk">SurgeonID</span><span class="field-type">TEXT·PK</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">SurgeonName</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">Specialty</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">Designation</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">YearsExperience</span><span class="field-type">INT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">SurgeonEmail</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">JoinDate</span><span class="field-type">DATE</span></div>
+          </div>
+        </div>
+
+        <!-- DimPatient -->
+        <div class="table-card theme-patient" id="card-patient">
+          <div class="card-header">
+            <span class="card-icon">🧑‍🤝‍🧑</span>
+            <span class="card-title">DimPatient</span>
+            <span class="card-type">Dimension</span>
+          </div>
+          <div class="card-fields">
+            <div class="field-row"><span class="field-icon pk">🔑</span><span class="field-name field-pk">PatientID</span><span class="field-type">TEXT·PK</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">AgeGroup</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">Gender</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">PatientType</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">BloodGroup</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">InsuranceType</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">City</span><span class="field-type">TEXT</span></div>
+          </div>
+        </div>
+
+        <!-- DimStaff -->
+        <div class="table-card theme-staff" id="card-staff">
+          <div class="card-header">
+            <span class="card-icon">👩‍⚕️</span>
+            <span class="card-title">DimStaff</span>
+            <span class="card-type">Dimension</span>
+          </div>
+          <div class="card-fields">
+            <div class="field-row"><span class="field-icon pk">🔑</span><span class="field-name field-pk">StaffID</span><span class="field-type">TEXT·PK</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">StaffName</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">Role</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">Department</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">Shift</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">YearsExperience</span><span class="field-type">INT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">CertificationLevel</span><span class="field-type">TEXT</span></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- CENTER COLUMN -->
+      <div class="col-center">
+
+        <!-- DimDate (top) -->
+        <div class="table-card theme-date fact-card" id="card-date" style="margin-bottom:24px">
+          <div class="card-header">
+            <span class="card-icon">📅</span>
+            <span class="card-title">DimDate</span>
+            <span class="card-type" style="background:rgba(62,207,142,0.1)">Date Dim · Bidirectional</span>
+          </div>
+          <div class="card-fields" style="display:grid;grid-template-columns:1fr 1fr">
+            <div class="field-row"><span class="field-icon pk">🔑</span><span class="field-name field-pk">DateKey</span><span class="field-type">INT·PK</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">Date</span><span class="field-type">DATE</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">Year</span><span class="field-type">INT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">Quarter</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">MonthNum</span><span class="field-type">INT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">MonthName</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">DayName</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">IsWeekend</span><span class="field-type">BOOL</span></div>
+          </div>
+        </div>
+
+        <!-- FACT TABLE (center, prominent) -->
+        <div class="table-card theme-fact fact-card" id="card-fact" style="border:1.5px solid rgba(46,141,224,0.5);box-shadow:0 0 40px rgba(26,111,189,0.2),0 0 80px rgba(26,111,189,0.08)">
+          <div class="card-header" style="background:linear-gradient(135deg,#1a3060,#0d1f45);border-bottom:2px solid var(--blue2);padding:12px 16px">
+            <span class="card-icon">⚡</span>
+            <div>
+              <div class="card-title" style="font-size:15px;color:var(--white)">SurgicalCasesFact</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--blue2);margin-top:2px;letter-spacing:1px">FACT TABLE  ·  4,849 ROWS</div>
+            </div>
+            <span class="card-type" style="margin-left:auto;color:var(--blue2);border-color:var(--blue2);background:rgba(46,141,224,0.1)">Core Fact</span>
+          </div>
+          <div class="card-fields" style="display:grid;grid-template-columns:1fr 1fr">
+            <div class="field-row"><span class="field-icon pk">🔑</span><span class="field-name field-pk">CaseID</span><span class="field-type">TEXT·PK</span></div>
+            <div class="field-row"><span class="field-icon fk">🔗</span><span class="field-name field-fk">DateKey</span><span class="field-type">INT·FK</span></div>
+            <div class="field-row"><span class="field-icon fk">🔗</span><span class="field-name field-fk">SurgeonID</span><span class="field-type">TEXT·FK</span></div>
+            <div class="field-row"><span class="field-icon fk">🔗</span><span class="field-name field-fk">OTRoomID</span><span class="field-type">TEXT·FK</span></div>
+            <div class="field-row"><span class="field-icon fk">🔗</span><span class="field-name field-fk">ProcedureID</span><span class="field-type">TEXT·FK</span></div>
+            <div class="field-row"><span class="field-icon fk">🔗</span><span class="field-name field-fk">PatientID</span><span class="field-type">TEXT·FK</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">ScheduledStartTime</span><span class="field-type">TIME</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">ActualStartTime</span><span class="field-type">TIME</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">ActualDurationMins</span><span class="field-type">INT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">StartDelayMins</span><span class="field-type">INT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">CaseStatus</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">EmergencyFlag</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">FirstCaseFlag</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">TurnoverTimeMins</span><span class="field-type">INT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">AnesthesiaType</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">ASAScore</span><span class="field-type">TEXT</span></div>
+          </div>
+        </div>
+
+        <!-- Cancellation Log (below fact) -->
+        <div class="table-card theme-cancel fact-card" id="card-cancel" style="margin-top:24px">
+          <div class="card-header">
+            <span class="card-icon">❌</span>
+            <span class="card-title">CancellationLog</span>
+            <span class="card-type" style="background:rgba(255,140,66,0.1)">Bridge Fact · 612 rows</span>
+          </div>
+          <div class="card-fields" style="display:grid;grid-template-columns:1fr 1fr">
+            <div class="field-row"><span class="field-icon pk">🔑</span><span class="field-name field-pk">CancellationID</span><span class="field-type">TEXT·PK</span></div>
+            <div class="field-row"><span class="field-icon fk">🔗</span><span class="field-name field-fk">CaseID</span><span class="field-type">TEXT·FK</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">CancellationDate</span><span class="field-type">DATE</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">CancellationReason</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">CancelledBy</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">NoticeHoursInAdvance</span><span class="field-type">INT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">RescheduledFlag</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">ImpactHours</span><span class="field-type">DEC</span></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="col-right">
+
+        <!-- DimOTRoom -->
+        <div class="table-card theme-room" id="card-room">
+          <div class="card-header">
+            <span class="card-icon">🏥</span>
+            <span class="card-title">DimOTRoom</span>
+            <span class="card-type">Dimension</span>
+          </div>
+          <div class="card-fields">
+            <div class="field-row"><span class="field-icon pk">🔑</span><span class="field-name field-pk">RoomID</span><span class="field-type">TEXT·PK</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">RoomName</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">RoomType</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">PrimarySpecialty</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">EquipmentTier</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">Capacity</span><span class="field-type">INT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">AvailableHoursPerDay</span><span class="field-type">INT</span></div>
+          </div>
+        </div>
+
+        <!-- DimProcedure -->
+        <div class="table-card theme-proc" id="card-proc">
+          <div class="card-header">
+            <span class="card-icon">🔬</span>
+            <span class="card-title">DimProcedure</span>
+            <span class="card-type">Dimension</span>
+          </div>
+          <div class="card-fields">
+            <div class="field-row"><span class="field-icon pk">🔑</span><span class="field-name field-pk">ProcedureID</span><span class="field-type">TEXT·PK</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">ProcedureName</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">Specialty</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">AvgDurationMins</span><span class="field-type">INT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">ComplexityLevel</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">AnesthesiaType</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">RequiresICU</span><span class="field-type">TEXT</span></div>
+          </div>
+        </div>
+
+        <!-- DimEquipment -->
+        <div class="table-card theme-equip" id="card-equip">
+          <div class="card-header">
+            <span class="card-icon">⚙️</span>
+            <span class="card-title">DimEquipment</span>
+            <span class="card-type" style="background:rgba(0,212,255,0.08)">Dimension</span>
+          </div>
+          <div class="card-fields">
+            <div class="field-row"><span class="field-icon pk">🔑</span><span class="field-name field-pk">EquipmentID</span><span class="field-type">TEXT·PK</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">EquipmentName</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon fk">🔗</span><span class="field-name field-fk">AssignedRoom</span><span class="field-type">FK→OTRoom</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">Manufacturer</span><span class="field-type">TEXT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">PurchaseYear</span><span class="field-type">INT</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">WarrantyExpiry</span><span class="field-type">DATE</span></div>
+            <div class="field-row"><span class="field-icon">▸</span><span class="field-name">Status</span><span class="field-type">TEXT</span></div>
+          </div>
+          <!-- Equip Utilization sub-note -->
+          <div style="background:rgba(0,212,255,0.04);border-top:1px solid rgba(0,212,255,0.1);padding:6px 14px">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(0,212,255,0.6);letter-spacing:1px">▼  EquipmentUtilization (4,517 rows) linked via EquipmentID</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Relationship Table -->
+    <div class="rel-labels">
+      <h3>Relationship Map — 8 Active Relationships</h3>
+      <div class="rel-grid">
+        <div class="rel-item">
+          <div class="rel-from">SurgicalCasesFact</div>
+          <div class="rel-arrow">─── DateKey ──▶</div>
+          <div class="rel-to">DimDate</div>
+          <div class="rel-meta"><span class="rel-cardinality">Many:One</span> · 🔄 Bidirectional</div>
+        </div>
+        <div class="rel-item">
+          <div class="rel-from">SurgicalCasesFact</div>
+          <div class="rel-arrow">─── SurgeonID ──▶</div>
+          <div class="rel-to">DimSurgeon</div>
+          <div class="rel-meta"><span class="rel-cardinality">Many:One</span> · → Single</div>
+        </div>
+        <div class="rel-item">
+          <div class="rel-from">SurgicalCasesFact</div>
+          <div class="rel-arrow">─── OTRoomID ──▶</div>
+          <div class="rel-to">DimOTRoom</div>
+          <div class="rel-meta"><span class="rel-cardinality">Many:One</span> · → Single</div>
+        </div>
+        <div class="rel-item">
+          <div class="rel-from">SurgicalCasesFact</div>
+          <div class="rel-arrow">─── ProcedureID ──▶</div>
+          <div class="rel-to">DimProcedure</div>
+          <div class="rel-meta"><span class="rel-cardinality">Many:One</span> · → Single</div>
+        </div>
+        <div class="rel-item">
+          <div class="rel-from">SurgicalCasesFact</div>
+          <div class="rel-arrow">─── PatientID ──▶</div>
+          <div class="rel-to">DimPatient</div>
+          <div class="rel-meta"><span class="rel-cardinality">Many:One</span> · → Single</div>
+        </div>
+        <div class="rel-item">
+          <div class="rel-from">CancellationLog</div>
+          <div class="rel-arrow">─── CaseID ──▶</div>
+          <div class="rel-to">SurgicalCasesFact</div>
+          <div class="rel-meta"><span class="rel-cardinality">Many:One</span> · → Single</div>
+        </div>
+        <div class="rel-item">
+          <div class="rel-from">EquipmentUtilization</div>
+          <div class="rel-arrow">─── EquipmentID ──▶</div>
+          <div class="rel-to">DimEquipment</div>
+          <div class="rel-meta"><span class="rel-cardinality">Many:One</span> · → Single</div>
+        </div>
+        <div class="rel-item">
+          <div class="rel-from">EquipmentUtilization</div>
+          <div class="rel-arrow">─── OTRoomID ──▶</div>
+          <div class="rel-to">DimOTRoom</div>
+          <div class="rel-meta"><span class="rel-cardinality">Many:One</span> · → Single</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar" style="background:rgba(13,27,42,0.8)">
+      <div class="stat-item"><div class="stat-val">9</div><div class="stat-label">Total Tables</div></div>
+      <div class="stat-item"><div class="stat-val">8</div><div class="stat-label">Relationships</div></div>
+      <div class="stat-item"><div class="stat-val">4,849</div><div class="stat-label">Surgical Cases</div></div>
+      <div class="stat-item"><div class="stat-val">612</div><div class="stat-label">Cancellation Logs</div></div>
+      <div class="stat-item"><div class="stat-val">4,517</div><div class="stat-label">Equipment Logs</div></div>
+      <div class="stat-item"><div class="stat-val">24+</div><div class="stat-label">DAX Measures</div></div>
+      <div class="stat-item"><div class="stat-val">8</div><div class="stat-label">Report Pages</div></div>
+    </div>
+
+  </div><!-- /diagram -->
+
+  <div class="watermark">OPERATION THEATER EFFICIENCY &amp; UTILIZATION ANALYTICS  ·  B.TECH III YEAR MINI PROJECT  ·  POWER BI STAR SCHEMA</div>
+
+</div><!-- /canvas -->
+</body>
+</html>

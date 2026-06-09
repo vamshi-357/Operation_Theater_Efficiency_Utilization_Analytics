@@ -1,0 +1,76 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.8.0/schema.json",
+  "name": "d6562f55d49e1161458d",
+  "position": {
+    "x": 644.05518235181933,
+    "y": 0,
+    "z": 1000,
+    "height": 335.04757464663379,
+    "width": 635,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "scatterChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimSurgeon"
+                    }
+                  },
+                  "Property": "SurgeonName"
+                }
+              },
+              "queryRef": "DimSurgeon.SurgeonName",
+              "nativeQueryRef": "SurgeonName",
+              "active": true
+            }
+          ]
+        },
+        "X": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "__Measures"
+                    }
+                  },
+                  "Property": "Avg Surgery Duration (mins)"
+                }
+              },
+              "queryRef": "__Measures.Avg Surgery Duration (mins)",
+              "nativeQueryRef": "Avg Surgery Duration (mins)",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "__Measures"
+                    }
+                  },
+                  "Property": "Total Cases"
+                }
+              },
+              "queryRef": "__Measures.Total Cases",
+              "nativeQueryRef": "Total Cases"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

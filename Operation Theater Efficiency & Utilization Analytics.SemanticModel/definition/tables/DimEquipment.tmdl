@@ -1,0 +1,81 @@
+table DimEquipment
+	lineageTag: cabfad3a-bfd1-4558-a295-78f5184990cf
+
+	column EquipmentID
+		dataType: string
+		lineageTag: 2a85ae70-8efc-49dc-8ac3-99340d18fc45
+		summarizeBy: none
+		sourceColumn: EquipmentID
+
+		annotation SummarizationSetBy = Automatic
+
+	column EquipmentName
+		dataType: string
+		lineageTag: e06f9f77-a777-44fc-8cd6-55bb80dc076c
+		summarizeBy: none
+		sourceColumn: EquipmentName
+
+		annotation SummarizationSetBy = Automatic
+
+	column AssignedRoom
+		dataType: string
+		lineageTag: 48096954-f523-4b04-89d4-169d272e5214
+		summarizeBy: none
+		sourceColumn: AssignedRoom
+
+		annotation SummarizationSetBy = Automatic
+
+	column Manufacturer
+		dataType: string
+		lineageTag: 481dff34-98bd-4adf-a926-1687f00300ae
+		summarizeBy: none
+		sourceColumn: Manufacturer
+
+		annotation SummarizationSetBy = Automatic
+
+	column PurchaseYear
+		dataType: int64
+		formatString: 0
+		lineageTag: 1af14125-a413-41a4-91bb-533581601e02
+		summarizeBy: sum
+		sourceColumn: PurchaseYear
+
+		annotation SummarizationSetBy = Automatic
+
+	column WarrantyExpiry
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: ae516a3e-6055-4871-aa0d-3fe93fe06210
+		summarizeBy: none
+		sourceColumn: WarrantyExpiry
+
+		variation Variation
+			isDefault
+			relationship: 4f11f99a-a1ec-4303-b728-dcbd9e13bf7f
+			defaultHierarchy: LocalDateTable_cde8546c-ea14-4dd3-b6e7-c15750b04c2b.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Status
+		dataType: string
+		lineageTag: 3e5aaa7e-c61d-48ee-b977-afbb234ff4a3
+		summarizeBy: none
+		sourceColumn: Status
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimEquipment = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\KiranCherukupally\OneDrive - EPAM\My Data\KnowYourBI\Projects\MLRITM\Projects\IGNITE-2\22 - Operation Theater Efficiency & Utilization Analytics\files\OT_Dimension_Tables.xlsx"), null, true),
+				    DimEquipment_Sheet = Source{[Item="DimEquipment",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(DimEquipment_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"EquipmentID", type text}, {"EquipmentName", type text}, {"AssignedRoom", type text}, {"Manufacturer", type text}, {"PurchaseYear", Int64.Type}, {"WarrantyExpiry", type date}, {"Status", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Exception
+

@@ -1,0 +1,55 @@
+relationship ab3f5048-b543-46c5-8255-766db986bcd2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: CancellationLog.CancellationDate
+	toColumn: LocalDateTable_9e670824-9d1b-462b-9d67-9a76803c0029.Date
+
+relationship 4f11f99a-a1ec-4303-b728-dcbd9e13bf7f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DimEquipment.WarrantyExpiry
+	toColumn: LocalDateTable_cde8546c-ea14-4dd3-b6e7-c15750b04c2b.Date
+
+relationship 8c0252d9-1fea-47f2-9656-e9625f09119c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DimSurgeon.JoinDate
+	toColumn: LocalDateTable_41323ef0-47fe-4ab5-beaa-cd73c5806b1e.Date
+
+relationship 6fea61dd-85c9-4d2f-b9a9-d1b12c456419
+	joinOnDateBehavior: datePartOnly
+	fromColumn: EquipmentUtilization.UsageDate
+	toColumn: LocalDateTable_c7f2f01e-e153-4e7c-b583-220952cd3e31.Date
+
+relationship AutoDetected_cdc08ecc-c941-4bd6-83c9-7029fee96655
+	fromColumn: EquipmentUtilization.EquipmentID
+	toColumn: DimEquipment.EquipmentID
+
+relationship e077721a-86e8-4d84-8856-1980c8de0c18
+	joinOnDateBehavior: datePartOnly
+	fromColumn: SurgicalCasesFact.CaseDate
+	toColumn: LocalDateTable_cfde9fcf-ffb3-4ef0-af1f-ba5b448fcefc.Date
+
+relationship AutoDetected_a1ab74f7-c3e8-4985-b7a8-f3e7a98e2b47
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: CancellationLog.CaseID
+	toColumn: SurgicalCasesFact.CaseID
+
+relationship AutoDetected_e2235d20-8a60-49f8-9833-8e7efb6b05bf
+	fromColumn: EquipmentUtilization.CaseID
+	toColumn: SurgicalCasesFact.CaseID
+
+relationship AutoDetected_2f8334c4-9a33-444b-855a-ee8183272aa7
+	fromColumn: SurgicalCasesFact.ProcedureID
+	toColumn: DimProcedure.ProcedureID
+
+relationship AutoDetected_fe1c1e72-7179-4cf4-afaf-fa0639f01914
+	fromColumn: SurgicalCasesFact.SurgeonID
+	toColumn: DimSurgeon.SurgeonID
+
+relationship AutoDetected_f71af43c-e34f-4c56-bba7-78602e59987b
+	fromColumn: SurgicalCasesFact.PatientID
+	toColumn: DimPatient.PatientID
+
+relationship AutoDetected_337a3ed6-1086-4ca0-a608-5c2d9191b71b
+	fromColumn: SurgicalCasesFact.DateKey
+	toColumn: DimDate.DateKey
+

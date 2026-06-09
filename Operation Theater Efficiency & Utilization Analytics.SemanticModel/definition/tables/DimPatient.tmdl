@@ -1,0 +1,75 @@
+table DimPatient
+	lineageTag: 13dda744-5563-46e9-8fea-b6cdee02f0fb
+
+	column PatientID
+		dataType: string
+		lineageTag: e385e55f-ab5a-42d0-a588-1ac140491150
+		summarizeBy: none
+		sourceColumn: PatientID
+
+		annotation SummarizationSetBy = Automatic
+
+	column AgeGroup
+		dataType: string
+		lineageTag: df639232-858d-4419-9a65-b05c9d87b5c6
+		summarizeBy: none
+		sourceColumn: AgeGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column Gender
+		dataType: string
+		lineageTag: 28b051f0-2a69-48f2-a704-a9ed31106de3
+		summarizeBy: none
+		sourceColumn: Gender
+
+		annotation SummarizationSetBy = Automatic
+
+	column PatientType
+		dataType: string
+		lineageTag: ed2dec95-9a0f-4759-9eeb-64aebd4a3d6f
+		summarizeBy: none
+		sourceColumn: PatientType
+
+		annotation SummarizationSetBy = Automatic
+
+	column BloodGroup
+		dataType: string
+		lineageTag: aaa0d7bd-5f32-45fc-9211-5d2fe54de356
+		summarizeBy: none
+		sourceColumn: BloodGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column InsuranceType
+		dataType: string
+		lineageTag: 5986c96b-558f-4df8-994e-94d9b44559eb
+		summarizeBy: none
+		sourceColumn: InsuranceType
+
+		annotation SummarizationSetBy = Automatic
+
+	column City
+		dataType: string
+		lineageTag: 7ba01181-b8ed-48c9-a531-80b953e0ac19
+		summarizeBy: none
+		sourceColumn: City
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimPatient = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\KiranCherukupally\OneDrive - EPAM\My Data\KnowYourBI\Projects\MLRITM\Projects\IGNITE-2\22 - Operation Theater Efficiency & Utilization Analytics\files\OT_Dimension_Tables.xlsx"), null, true),
+				    DimPatient_Sheet = Source{[Item="DimPatient",Kind="Sheet"]}[Data],
+				    #"Changed Type" = Table.TransformColumnTypes(DimPatient_Sheet,{{"Column1", type text}, {"Column2", type text}, {"Column3", type text}, {"Column4", type text}, {"Column5", type text}, {"Column6", type text}, {"Column7", type text}}),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Changed Type", [PromoteAllScalars=true]),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers",{{"PatientID", type text}, {"AgeGroup", type text}, {"Gender", type text}, {"PatientType", type text}, {"BloodGroup", type text}, {"InsuranceType", type text}, {"City", type text}})
+				in
+				    #"Changed Type1"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

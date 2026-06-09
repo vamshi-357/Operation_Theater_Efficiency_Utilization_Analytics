@@ -1,0 +1,73 @@
+table DimProcedure
+	lineageTag: 11c5d134-9ff9-4032-b917-86609bb7c087
+
+	column ProcedureID
+		dataType: string
+		lineageTag: e698d8fc-1ac4-4e1c-8c85-e91e149691aa
+		summarizeBy: none
+		sourceColumn: ProcedureID
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProcedureName
+		dataType: string
+		lineageTag: 77fca93a-78e0-4204-819d-7b2bfaae4a28
+		summarizeBy: none
+		sourceColumn: ProcedureName
+
+		annotation SummarizationSetBy = Automatic
+
+	column Specialty
+		dataType: string
+		lineageTag: c74814e5-a248-462a-afad-2f6012a204db
+		summarizeBy: none
+		sourceColumn: Specialty
+
+		annotation SummarizationSetBy = Automatic
+
+	column AvgDurationMins
+		dataType: int64
+		formatString: 0
+		lineageTag: 556c6ddf-193a-4072-af19-ebc42a3d5dd2
+		summarizeBy: none
+		sourceColumn: AvgDurationMins
+
+		annotation SummarizationSetBy = Automatic
+
+	column ComplexityLevel
+		dataType: string
+		lineageTag: 503f360f-dfc8-41f4-ad89-6bff98825b8e
+		summarizeBy: none
+		sourceColumn: ComplexityLevel
+
+		annotation SummarizationSetBy = Automatic
+
+	column AnesthesiaType
+		dataType: string
+		lineageTag: 65164514-c2b8-4ec9-adf0-d3b33c2c637f
+		summarizeBy: none
+		sourceColumn: AnesthesiaType
+
+		annotation SummarizationSetBy = Automatic
+
+	column RequiresICU
+		dataType: string
+		lineageTag: fc8252ba-ddf9-4c64-a9de-e8648ee16ffb
+		summarizeBy: none
+		sourceColumn: RequiresICU
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimProcedure = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\KiranCherukupally\OneDrive - EPAM\My Data\KnowYourBI\Projects\MLRITM\Projects\IGNITE-2\22 - Operation Theater Efficiency & Utilization Analytics\files\OT_Dimension_Tables.xlsx"), null, true),
+				    DimProcedure_Sheet = Source{[Item="DimProcedure",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(DimProcedure_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"ProcedureID", type text}, {"ProcedureName", type text}, {"Specialty", type text}, {"AvgDurationMins", Int64.Type}, {"ComplexityLevel", type text}, {"AnesthesiaType", type text}, {"RequiresICU", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Exception
+
